@@ -1,25 +1,17 @@
 import datetime
-
+import pandas as pd
 
 class NurseRecord:
-    import pandas as pd
-    frame = pd.DataFrame
-    path = ''
-    nurseId = int
-    startDate = datetime.datetime
-    endDate = datetime.datetime
-
     def __init__(self, path=str):
-        import pandas as pd
         self.frame = pd.read_csv(path, header=0)
-        print('Nurse record created')
         self.path = path
+        
         filename = self.path.split('/')[-1].split('.')[0]
         info = filename.split('_')
-        self.nurseId = int(info[0][1:])
         date = info[1]
         start_time = info[2].split('-')[0]
         end_time = info[2].split('-')[1]
+        self.nurseId = int(info[0][1:])
         self.startDate = datetime.datetime(
             int(date[0:4]),  # year
             int(date[4:6]),  # month
@@ -36,3 +28,4 @@ class NurseRecord:
             int(end_time[2:4]),  # minute
             int(end_time[4:6])  # second
         )
+        print('Nurse record created')
