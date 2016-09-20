@@ -1,7 +1,7 @@
 import datetime
 import pandas as pd
 
-class NurseRecord:
+class NurseSensorsRecord:
     def __init__(self, path=str):
         self.frame = pd.read_csv(path, header=0)
         self.path = path
@@ -28,4 +28,20 @@ class NurseRecord:
             int(end_time[2:4]),  # minute
             int(end_time[4:6])  # second
         )
-        print('Nurse record created')
+        print('Nurse sensors record created')
+
+class NurseLables:
+    def __init__(self, path=str):
+        self.frame = pd.read_csv(path, header=0)
+        self.path = path
+
+        filename = self.path.split('/')[-1].split('.')[0]
+        info = filename.split('_')
+        date = info[1]
+        self.nurseId = int(info[0][1:])
+        self.date = datetime.date(
+            int(date[0:4]),  # year
+            int(date[4:6]),  # month
+            int(date[6:8])  # day
+        )
+        print('Labels record created')
