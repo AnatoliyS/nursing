@@ -35,8 +35,8 @@ class NurseLables:
         self.frame = pd.read_csv(path, header=0)
         self.path = path
 
-        filename = self.path.split('/')[-1].split('.')[0]
-        info = filename.split('_')
+        self.filename = self.path.split('/')[-1].split('.')[0]
+        info = self.filename.split('_')
         date = info[1]
         self.nurseId = int(info[0][1:])
         self.date = datetime.date(
@@ -45,3 +45,7 @@ class NurseLables:
             int(date[6:8])  # day
         )
         print('Labels record created')
+
+    def write(self, path='./data/processed/Labelled/sensors/'):
+        self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
+                          index=False)
