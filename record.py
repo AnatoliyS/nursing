@@ -2,7 +2,7 @@ import datetime
 import pandas as pd
 
 class NurseSensorsRecord:
-    def __init__(self, path=str):
+    def __init__(self, path):
         self.frame = pd.read_csv(path, header=0)
         self.path = path
         
@@ -28,10 +28,10 @@ class NurseSensorsRecord:
             int(end_time[2:4]),  # minute
             int(end_time[4:6])  # second
         )
-        print('Nurse sensors record created')
+        print('Nurse sensors record created (file "' + path + '")')
 
 class NurseLables:
-    def __init__(self, path=str):
+    def __init__(self, path):
         self.frame = pd.read_csv(path, header=0)
         self.path = path
 
@@ -44,7 +44,7 @@ class NurseLables:
             int(date[4:6]),  # month
             int(date[6:8])  # day
         )
-        print('Labels record created')
+        print('Labels record created (file "' + path + '")')
 
     def write(self, path='./data/processed/Labelled/sensors/'):
         self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
