@@ -49,3 +49,10 @@ class NurseLables:
     def write(self, path='./data/processed/Labelled/labels/'):
         self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
                           index=False)
+
+class TrainingSample:
+    def __init__(self, action_id, sensors_data):
+        self.frame = sensors_data
+        self.action_id = action_id
+
+        print('Training sample created')
