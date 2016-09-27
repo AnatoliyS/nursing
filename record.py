@@ -46,6 +46,6 @@ class NurseLables:
         )
         print('Labels record created (file "' + path + '")')
 
-    def write(self, path='./data/processed/Labelled/sensors/'):
+    def write(self, path='./data/processed/Labelled/labels/'):
         self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
                           index=False)
