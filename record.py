@@ -39,10 +39,13 @@ class NurseLables:
         info = self.filename.split('_')
         date = info[1]
         self.nurseId = int(info[0][1:])
-        self.date = datetime.date(
+        self.date = datetime.datetime(
             int(date[0:4]),  # year
             int(date[4:6]),  # month
-            int(date[6:8])  # day
+            int(date[6:8]),  # day
+            0,
+            0,
+            0
         )
         print('Labels record created (file "' + path + '")')
 
