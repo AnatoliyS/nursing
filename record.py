@@ -1,5 +1,6 @@
 import datetime
 import pandas as pd
+import os
 
 class NurseSensorsRecord:
     def __init__(self, path):
@@ -53,9 +54,18 @@ class NurseLables:
         self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
                           index=False)
 
+
 class TrainingSample:
-    def __init__(self, action_id, sensors_data):
+    def __init__(self, id, action_id, sensors_data):
         self.frame = sensors_data
         self.action_id = action_id
+        self.id = id
 
         print('Training sample created')
+
+    def write(self, path='./data/processed/Labelled/sensors/'):
+        path = path + str(self.action_id) + '/'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        self.frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True,
+                          index=False)

@@ -15,6 +15,7 @@ def inTimeRange(start_date, finish_date, date):
 
 def ExtractClasses(label_records, sensors_data):
     train_data = {}
+    train_num = 0
     print('Extracting classes and preparing training data ')
 
     for nurse_lable_record in label_records:
@@ -27,7 +28,7 @@ def ExtractClasses(label_records, sensors_data):
             start_t = datetime.strptime(row['start_t'], '%Y-%m-%d %H:%M:%S')
             finish_t = datetime.strptime(row['finish_t'], '%Y-%m-%d %H:%M:%S')
 
-            print("Finding sensors data for actiond " + str(action_id))
+            #print("Finding sensors data for actiond " + str(action_id))
 
             for sensor_record in sensors_data:
                 if nurse_lable_record.nurseId != sensor_record.nurseId:
@@ -35,23 +36,26 @@ def ExtractClasses(label_records, sensors_data):
                 if not sameDate(label_date, sensor_record.startDate):
                     continue
 
-                print("found records for this date")
+                #print("found records for this date")
 
                 rows_list = []
                 for sensor_index, sensor_row in sensor_record.frame.iloc[:, :].iterrows():
                     current_time = sensor_record.startDate + \
                                    timedelta(milliseconds=int(sensor_row['time']) * 1000)
-                    print('checking time' + str(current_time))
+                    #print('checking time' + str(current_time))
                     if inTimeRange(start_t, finish_t, current_time):
-                        print('date is in range')
+                        #print('date is in range')
                         rows_list.append(sensor_row)
 
                 print(rows_list)
-                frame = pd.concat(rows_list)
 
-                print(frame.shape)
-                if frame.shape[0] > 0:
+                if len(rows_list) > 0:
+                    train_num += 1
+                    frame = DataFrame(rows_list)
                     print('Gathered ' + str(frame.shape[0]) + ' records')
-                    train_data.setdefault(TrainingSample(action_id=action_id, sensors_data=frame))
+                    #train_data.setdefault(TrainingSample(action_id=action_id, sensors_data=frame))
+                    sample = TrainingSample(id=train_num, action_id=action_id, sensors_data=frame)
+                    sample.write()
+
 
     return train_data
