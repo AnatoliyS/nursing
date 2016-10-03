@@ -85,6 +85,8 @@ class EventProcessor:
             self.FullfillSensorEventsReal(record)
         self.sensor_records[:] = []
 
+        self.Sort()
+
     def __len__(self):
 #        return len(self.events)
         length = 0
