@@ -4,10 +4,6 @@ import pandas as pd
 import record
 
 
-def sameDate(date1, date2):
-    return date1.day == date2.day and date1.month == date2.month and date1.year == date2.year
-
-
 def inTimeRange(start_date, finish_date, date):
     return start_date < date < finish_date
 
@@ -64,7 +60,6 @@ class EventProcessor:
 
     def FullfillLableEvents(self, record):
         self.lable_records.append(record)
-        
 
     def FullfillLableEventsReal(self, record):
         for row in LableRow.ParseLableRecord(record):
@@ -84,8 +79,11 @@ class EventProcessor:
     def WarmUp(self):
         for record in self.lable_records:
             self.FullfillLableEventsReal(record)
+        self.lable_records[:] = []
+
         for record in self.sensor_records:
             self.FullfillSensorEventsReal(record)
+        self.sensor_records[:] = []
 
     def __len__(self):
 #        return len(self.events)
@@ -120,9 +118,11 @@ class ClassExtractor:
     def Process(self):
         next_sample_id = 0
 
+        total_length = sum([len(ep) for ep in self.nurse_date_to_events.values()])
+
         for i, (nurse_date, event_processor) in enumerate(self.nurse_date_to_events.items()):
-            print('Processing EventProcessor {}/{} containing {} items.'.format(i + 1, len(self.nurse_date_to_events),
-                                                                               len(event_processor)))
+            print('Processing EventProcessor {}/{} containing {}/{} items.'.format(i + 1, len(self.nurse_date_to_events),
+                                                                                   len(event_processor), total_length))
 
             event_processor.WarmUp()
             sample_builders = {}
@@ -138,5 +138,5 @@ class ClassExtractor:
                     for builder in sample_builders.values():
                         builder.add_row(data.row)
 
-            print('Erasing EventProcessor containing {} items.'.format(len(event_processor)))
+            print('Erasing EventProcessor.'.format(len(event_processor)))
             self.nurse_date_to_events[nurse_date] = None
