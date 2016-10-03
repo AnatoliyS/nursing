@@ -49,7 +49,7 @@ class Event:
         return (self.time, self.klass) < (o.time, o.klass)
 
     def __str__(self):
-        return 'Event( klass: {}, time: {}, data: {})'.format(self.klass, self.time, self.data)
+        return 'Event( klass: {}, time: {})'.format(self.klass, self.time)
 
 
 class EventProcessor:
@@ -103,7 +103,7 @@ class ClassExtractor:
     def LoadLables(self, records):
         for i, record in enumerate(records):
             print('Parsing lable record {}/{}. Contains {} items.'.format(i + 1, len(records), len(record)))
-            event_processor = self.nurse_date_to_events[(record.nurseId, record.date)]
+            event_processor = self.nurse_date_to_events[(record.nurseId, SkipTime(record.date))]
             event_processor.FullfillLableEvents(record)
 
     def LoadSensors(self, records):
