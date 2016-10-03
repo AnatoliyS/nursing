@@ -18,7 +18,17 @@ def ExtractClasses(label_records, sensors_data):
     train_num = 0
     print('Extracting classes and preparing training data ')
 
-    for nurse_lable_record in label_records:
+    processed = 0
+    total = 0
+    for nurse_lable_record in label_records[:1]:
+        print('Counting file ' + nurse_lable_record.filename)
+        total += nurse_lable_record.frame.shape[0]
+        
+    total *= len(sensors_data)
+    
+    print('Total of {}'.format(total))
+
+    for nurse_lable_record in label_records[:1]:
         print('Processing file ' + nurse_lable_record.filename)
         label_date = nurse_lable_record.date
 
@@ -31,6 +41,9 @@ def ExtractClasses(label_records, sensors_data):
             #print("Finding sensors data for actiond " + str(action_id))
 
             for sensor_record in sensors_data:
+                processed += 1
+                print('Processed {} out of {}'.format(processed, total))
+
                 if nurse_lable_record.nurseId != sensor_record.nurseId:
                     continue
                 if not sameDate(label_date, sensor_record.startDate):
@@ -39,15 +52,12 @@ def ExtractClasses(label_records, sensors_data):
                 #print("found records for this date")
 
                 rows_list = []
-                for sensor_index, sensor_row in sensor_record.frame.iloc[:, :].iterrows():
-                    current_time = sensor_record.startDate + \
-                                   timedelta(milliseconds=int(sensor_row['time']) * 1000)
+                for _, sensor_row in sensor_record.frame.iloc[:, :].iterrows():
+                    current_time = sensor_record.startDate + timedelta(milliseconds=int(sensor_row['time']) * 1000)
                     #print('checking time' + str(current_time))
                     if inTimeRange(start_t, finish_t, current_time):
                         #print('date is in range')
                         rows_list.append(sensor_row)
-
-                print(rows_list)
 
                 if len(rows_list) > 0:
                     train_num += 1
