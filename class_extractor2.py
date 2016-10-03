@@ -138,7 +138,7 @@ class ClassExtractor:
                     sample.write()
                 elif event.klass == 0:
                     for builder in sample_builders.values():
-                        builder.add_row(data.row)
+                        builder.add_row(data.data)
 
             print('Erasing EventProcessor.'.format(len(event_processor)))
             self.nurse_date_to_events[nurse_date] = None
