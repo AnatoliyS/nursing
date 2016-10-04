@@ -1,8 +1,9 @@
 import collections
 import datetime
+import functools
+import multiprocessing
 import pandas as pd
 import record
-
 
 def inTimeRange(start_date, finish_date, date):
     return start_date < date < finish_date
@@ -79,11 +80,9 @@ class EventProcessor:
     def WarmUp(self):
         for record in self.lable_records:
             self.FullfillLableEventsReal(record)
-        self.lable_records[:] = []
 
         for record in self.sensor_records:
             self.FullfillSensorEventsReal(record)
-        self.sensor_records[:] = []
 
         self.Sort()
 
@@ -116,29 +115,52 @@ class ClassExtractor:
         for i, (nurse_date, event_processor) in enumerate(self.nurse_date_to_events.items()):
             print('Sorting EventProcessor {}/{}. Contains {} items.'.format(i + 1, len(self.nurse_date_to_events),
                                                                             len(event_processor)))
+                                                                            
+    @staticmethod
+    def NextId(next_sample_id, lock):
+        with lock:
+          res = next_sample_id.value
+          next_sample_id.value += 1
+        return res
+
+
+    @classmethod
+    def ProcessEventProcessor(cls, event_processor_and_msg, value_lock, print_lock, next_sample_id):
+        event_processor = event_processor_and_msg[0]
+        msg = event_processor_and_msg[1]
+
+        print_lock.acquire()
+        print(msg)
+        print_lock.release()
+
+        event_processor.WarmUp()
+        sample_builders = {}
+        for event in event_processor.events:
+            data = event.data
+            if event.klass == -1:
+                sample_builders[data] = record.TrainingSampleBuilder(cls.NextId(next_sample_id, value_lock), data.action_id)
+            elif event.klass == +1:
+                sample = sample_builders.pop(data).build()
+                sample.write()
+            elif event.klass == 0:
+                for builder in sample_builders.values():
+                    builder.add_row(data.data)
 
     def Process(self):
-        next_sample_id = 0
-
         total_length = sum([len(ep) for ep in self.nurse_date_to_events.values()])
+        event_processor_count = len(self.nurse_date_to_events)
+       
+        event_processors = list(self.nurse_date_to_events.values())
+        event_processors.sort(key=lambda x: len(x))
+        msgs = ['Processing EventProcessor {}/{} containing {}/{} items.'.format(i + 1, event_processor_count, len(ep), total_length) for i, ep in enumerate(event_processors)]
 
-        for i, (nurse_date, event_processor) in enumerate(self.nurse_date_to_events.items()):
-            print('Processing EventProcessor {}/{} containing {}/{} items.'.format(i + 1, len(self.nurse_date_to_events),
-                                                                                   len(event_processor), total_length))
-
-            event_processor.WarmUp()
-            sample_builders = {}
-            for event in event_processor.events:
-                data = event.data
-                if event.klass == -1:
-                    sample_builders[data] = record.TrainingSampleBuilder(next_sample_id, data.action_id)
-                    next_sample_id += 1
-                elif event.klass == +1:
-                    sample = sample_builders.pop(data).build()
-                    sample.write()
-                elif event.klass == 0:
-                    for builder in sample_builders.values():
-                        builder.add_row(data.data)
-
-            print('Erasing EventProcessor.'.format(len(event_processor)))
-            self.nurse_date_to_events[nurse_date] = None
+        manager = multiprocessing.Manager()
+        value_lock = manager.Lock()
+        print_lock = manager.Lock()
+        next_sample_id = manager.Value('i', 0)
+        pool = multiprocessing.Pool(processes=2)
+        pool.map(functools.partial(self.ProcessEventProcessor,
+                                   value_lock=value_lock,
+                                   print_lock=print_lock,
+                                   next_sample_id=next_sample_id),
+                 zip(event_processors, msgs))
