@@ -35,7 +35,7 @@ class SensorRow:
     @classmethod
     def ParseSensorRecord(cls, record):
         for index, row in record.frame.iterrows():
-            time = record.startDate + datetime.timedelta(seconds=row['time'])
+            time = record.startDate + datetime.timedelta(seconds=float(row['time']))
             yield cls(time, row)
             
 

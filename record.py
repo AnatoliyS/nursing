@@ -1,10 +1,21 @@
 import datetime
 import os
 import pandas as pd
+import numpy as np
 
 class NurseSensorsRecord:
     def __init__(self, path):
-        self.frame = pd.read_csv(path, header=0)
+        self.frame = pd.read_csv(path, header=0, dtype={
+                'time': np.float32,
+                'chest_x': np.float32,
+                'chest_y': np.float32,
+                'chest_z': np.float32,
+                'waist_x': np.float32,
+                'waist_y': np.float32,
+                'waist_z': np.float32,
+                'right_x': np.float32,
+                'right_y': np.float32,
+                'right_z': np.float32})
         self.path = path
         
         filename = self.path.split('/')[-1].split('.')[0]
