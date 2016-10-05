@@ -151,6 +151,10 @@ class ClassExtractor:
                         data.action_id)
                 elif event.klass == +1:
                     sample = sample_builders.pop(data).build()
+                    if sample.frame.shape[0] == 0:
+                        print(
+                            'Warning! Empty sample. NurseId: {}.'
+                            'Date: {}.'.format(nurse_date[0], nurse_date[1]))
                     sample.write()
                 elif event.klass == 0:
                     for builder in sample_builders.values():
