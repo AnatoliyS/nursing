@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import ioutils as io
 from record import NurseLables, NurseSensorsRecord
-from class_extractor2 import ClassExtractor
+from class_extractor import ClassExtractor
 
 
 labels_file_paths = io.get_filepaths("./data/processed/Labelled/labels")
