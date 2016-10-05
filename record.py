@@ -1,10 +1,21 @@
 import datetime
-import pandas as pd
 import os
+import pandas as pd
+import numpy as np
 
 class NurseSensorsRecord:
     def __init__(self, path):
-        self.frame = pd.read_csv(path, header=0)
+        self.frame = pd.read_csv(path, header=0, dtype={
+                'time': np.float32,
+                'chest_x': np.float32,
+                'chest_y': np.float32,
+                'chest_z': np.float32,
+                'waist_x': np.float32,
+                'waist_y': np.float32,
+                'waist_z': np.float32,
+                'right_x': np.float32,
+                'right_y': np.float32,
+                'right_z': np.float32})
         self.path = path
         
         filename = self.path.split('/')[-1].split('.')[0]
@@ -29,7 +40,10 @@ class NurseSensorsRecord:
             int(end_time[2:4]),  # minute
             int(end_time[4:6])  # second
         )
-        print('Nurse sensors record created (file "' + path + '")')
+
+    def __len__(self):
+        return self.frame.shape[0]
+
 
 class NurseLables:
     def __init__(self, path):
@@ -48,11 +62,26 @@ class NurseLables:
             0,
             0
         )
-        print('Labels record created (file "' + path + '")')
 
     def write(self, path='./data/processed/Labelled/labels/'):
         self.frame.to_csv(path + self.filename + '.csv', sep=',', header=True,
                           index=False)
+
+    def __len__(self):
+        return self.frame.shape[0]
+
+
+class TrainingSampleBuilder:
+    def __init__(self, id, action_id):
+        self.id = id
+        self.action_id = action_id
+        self.rows = []
+
+    def add_row(self, row):
+        self.rows.append(row)
+
+    def build(self):
+        return TrainingSample(self.id, self.action_id, pd.DataFrame.from_dict(self.rows))
 
 
 class TrainingSample:
@@ -61,11 +90,10 @@ class TrainingSample:
         self.action_id = action_id
         self.id = id
 
-        print('Training sample created')
-
     def write(self, path='./data/processed/Labelled/sensors/'):
         path = path + str(self.action_id) + '/'
         if not os.path.exists(path):
             os.makedirs(path)
         self.frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True,
                           index=False)
+
