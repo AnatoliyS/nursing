@@ -146,7 +146,7 @@ class ClassExtractor:
                     continue
 
                 if event.klass == -1:
-                    sample_builders[data] = record.TrainingSampleBuilder(
+                    sample_builders[data] = record.ActionSampleBuilder(
                         self.NextSampleId(),
                         data.action_id)
                 elif event.klass == +1:

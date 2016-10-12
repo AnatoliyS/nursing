@@ -71,7 +71,7 @@ class NurseLables:
         return self.frame.shape[0]
 
 
-class TrainingSampleBuilder:
+class ActionSampleBuilder:
     def __init__(self, id, action_id):
         self.id = id
         self.action_id = action_id
@@ -81,14 +81,19 @@ class TrainingSampleBuilder:
         self.rows.append(row)
 
     def build(self):
-        return TrainingSample(self.id, self.action_id, pd.DataFrame.from_dict(self.rows))
+        return ActionSample(self.id, self.action_id, pd.DataFrame.from_dict(self.rows))
 
 
-class TrainingSample:
+class ActionSample:
     def __init__(self, id, action_id, sensors_data):
         self.frame = sensors_data
         self.action_id = action_id
         self.id = id
+
+    def __init__(self, path):
+        self.frame = pd.read_csv(path, header=0)
+        self.action_id = int(path.split('/')[-2])
+        self.id = int(path.split('/')[-1].split('.')[0])
 
     def write(self, path='./data/processed/Labelled/sensors/'):
         path = path + str(self.action_id) + '/'
@@ -97,3 +102,20 @@ class TrainingSample:
         self.frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True,
                           index=False)
 
+
+class TrainingSamplePack:
+    def __init__(self, id, action_id):
+        self.id = id
+        self.action_id = action_id
+        self.rows = []
+
+    def add_row(self, row):
+        row['action_id'] = self.action_id
+        self.rows.append(row)
+
+    def write(self, path='./data/processed/Labelled/training_samples/'):
+        path = path + str(self.action_id) + '/'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        frame = pd.DataFrame.from_dict(self.rows)
+        frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True, index=False)
