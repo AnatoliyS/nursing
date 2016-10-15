@@ -10,7 +10,7 @@ def ExtractFeatures(sensors_data_frame, bounds):
       Dictionary <feature_name, value> features.
     """
     features = {}
-    for i in range(2, 10):
+    for i in range(1, 10):
         features[sensors_data_frame.columns[i] + '_mean'] = sensors_data_frame.iloc[list(bounds), i].mean()
         features[sensors_data_frame.columns[i] + '_std'] = sensors_data_frame.iloc[list(bounds), i].std()
 

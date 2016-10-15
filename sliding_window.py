@@ -51,4 +51,5 @@ class SlidingWindowProcessor:
             sample.add_row(features)
             self.window.next()
         sample.write()
+        return sample
         #sample_number += 1

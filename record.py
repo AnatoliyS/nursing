@@ -110,12 +110,13 @@ class TrainingSamplePack:
         self.rows = []
 
     def add_row(self, row):
-        row['action_id'] = self.action_id
+        row['x_action_id'] = self.action_id
         self.rows.append(row)
 
     def write(self, path='./data/processed/Labelled/training_samples/'):
         path = path + str(self.action_id) + '/'
         if not os.path.exists(path):
             os.makedirs(path)
-        frame = pd.DataFrame.from_dict(self.rows)
-        frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True, index=False)
+        if len(self.rows) != 0:
+            frame = pd.DataFrame.from_dict(self.rows)
+            frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True, index=False)
