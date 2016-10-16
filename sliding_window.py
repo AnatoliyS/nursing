@@ -50,6 +50,6 @@ class SlidingWindowProcessor:
             features = feature_extractor.ExtractFeatures(self.actionSample.frame, self.window.bounds())
             sample.add_row(features)
             self.window.next()
-        sample.write()
+        sample.write(header=False)
         return sample
         #sample_number += 1

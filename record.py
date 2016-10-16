@@ -95,11 +95,11 @@ class ActionSample:
         self.action_id = int(path.split('/')[-2])
         self.id = int(path.split('/')[-1].split('.')[0])
 
-    def write(self, path='./data/processed/Labelled/sensors/'):
+    def write(self, path='./data/processed/Labelled/sensors/', header=True):
         path = path + str(self.action_id) + '/'
         if not os.path.exists(path):
             os.makedirs(path)
-        self.frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True,
+        self.frame.to_csv(path + str(self.id) + '.csv', sep=',', header=header,
                           index=False)
 
 
@@ -113,10 +113,10 @@ class TrainingSamplePack:
         row['x_action_id'] = self.action_id
         self.rows.append(row)
 
-    def write(self, path='./data/processed/Labelled/training_samples/'):
+    def write(self, path='./data/processed/Labelled/training_samples/', header=True):
         path = path + str(self.action_id) + '/'
         if not os.path.exists(path):
             os.makedirs(path)
         if len(self.rows) != 0:
             frame = pd.DataFrame.from_dict(self.rows)
-            frame.to_csv(path + str(self.id) + '.csv', sep=',', header=True, index=False)
+            frame.to_csv(path + str(self.id) + '.csv', sep=',', header=header, index=False)
